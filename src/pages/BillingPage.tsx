@@ -8,10 +8,12 @@ import {
   DEFAULT_VAT,
   MODELS,
   PM_SIZES,
+  TIERS,
   calculateCostPerPM,
   calculateCostPerSize,
+  detectTier,
 } from "../data/pricing";
-import type { ModelId, PMSize } from "../data/pricing";
+import type { ModelId, PMSize, Tier } from "../data/pricing";
 import { useRole } from "../hooks/useRole";
 
 type Mode = "forecast" | "history" | "invoice";
@@ -188,18 +190,19 @@ export const BillingPage = () => {
   const [mode, setMode] = useState<Mode>("forecast");
   const [usdSek, setUsdSek] = useState(DEFAULT_USD_SEK);
   const [vat, setVat] = useState(DEFAULT_VAT);
+  // Default-mix anpassad till Geosyntec Sweden (~2,3 PM/mån)
   const [pmBySize, setPmBySize] = useState<Record<PMSize, number>>({
-    small: 8,
-    standard: 30,
-    large: 10,
-    xl: 2,
+    small: 0,
+    standard: 2,
+    large: 1,
+    xl: 0,
   });
   const [modelOverrides, setModelOverrides] = useState<Partial<Record<string, ModelId>>>(
     {},
   );
   const [batchDiscount, setBatchDiscount] = useState(false);
   // Samify owner-kontroller
-  const [fixedFee, setFixedFee] = useState(35_000); // SEK/mån fast plattformsavgift
+  const [tierOverride, setTierOverride] = useState<Tier | null>(null);
   const [markup, setMarkup] = useState(50); // % påslag på AI-kostnaden
 
   const { totalUSD: costPerPMRaw, perAgent } = useMemo(
@@ -208,7 +211,18 @@ export const BillingPage = () => {
   );
   const costPerPM = batchDiscount ? costPerPMRaw * 0.5 : costPerPMRaw;
 
-  // AI-kostnad per storleksklass (USD)
+  // Total volym över alla storlekar
+  const pmPerMonth = (Object.keys(pmBySize) as PMSize[]).reduce(
+    (acc, s) => acc + pmBySize[s],
+    0,
+  );
+
+  // Prisnivå auto-detekteras från volym, men kan overridas av owner
+  const currentTier = tierOverride ?? detectTier(pmPerMonth);
+  const tierProfile = TIERS[currentTier];
+  const fixedFee = tierProfile.fixedFeeSEK;
+
+  // AI-kostnad per storleksklass (USD) med ev. tier-multiplikator
   const costPerSizeUSD = useMemo(() => {
     const result = {} as Record<PMSize, number>;
     (Object.keys(PM_SIZES) as PMSize[]).forEach((size) => {
@@ -217,12 +231,6 @@ export const BillingPage = () => {
     });
     return result;
   }, [modelOverrides, batchDiscount]);
-
-  // Total volym över alla storlekar
-  const pmPerMonth = (Object.keys(pmBySize) as PMSize[]).reduce(
-    (acc, s) => acc + pmBySize[s],
-    0,
-  );
 
   // Total AI-kostnad (USD) viktad över storlekar
   const monthlyUSD = (Object.keys(pmBySize) as PMSize[]).reduce(
@@ -349,7 +357,9 @@ export const BillingPage = () => {
             usdSek={usdSek}
             vat={vat}
             fixedFee={fixedFee}
-            setFixedFee={setFixedFee}
+            currentTier={currentTier}
+            tierOverride={tierOverride}
+            setTierOverride={setTierOverride}
             markup={markup}
             setMarkup={setMarkup}
             applyPreset={(p) => setModelOverrides(PRESETS[p])}
@@ -398,7 +408,9 @@ const ForecastView = ({
   usdSek,
   vat,
   fixedFee,
-  setFixedFee,
+  currentTier,
+  tierOverride,
+  setTierOverride,
   markup,
   setMarkup,
   applyPreset,
@@ -419,15 +431,19 @@ const ForecastView = ({
   usdSek: number;
   vat: number;
   fixedFee: number;
-  setFixedFee: (n: number) => void;
+  currentTier: Tier;
+  tierOverride: Tier | null;
+  setTierOverride: (t: Tier | null) => void;
   markup: number;
   setMarkup: (n: number) => void;
   applyPreset: (p: "max" | "balanced" | "lean") => void;
   isOwner: boolean;
 }) => {
+  const tierProfile = TIERS[currentTier];
   // Samify's fakturering till Geosyntec
   const aiCostMonthlySEK = monthlySEK;
-  const aiCostWithMarkupSEK = aiCostMonthlySEK * (1 + markup / 100);
+  const aiCostWithMarkupSEK =
+    aiCostMonthlySEK * (1 + markup / 100) * tierProfile.pmPriceMultiplier;
   const totalChargedSEK = fixedFee + aiCostWithMarkupSEK;
   const samifyMarginSEK = totalChargedSEK - aiCostMonthlySEK;
   const marginPercent = totalChargedSEK > 0 ? (samifyMarginSEK / totalChargedSEK) * 100 : 0;
@@ -436,6 +452,51 @@ const ForecastView = ({
     <div className="grid grid-cols-[1fr_400px] gap-4">
       {/* Vänster: konfiguration */}
       <div className="space-y-4">
+        {/* Tier-banner (synlig för alla) */}
+        <div
+          className="hairline rounded p-4 flex items-center gap-4"
+          style={{ background: "rgba(15, 23, 42, 0.03)" }}
+        >
+          <div className="flex-1">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mb-1">
+              Prisnivå · auto från volym
+            </div>
+            <div className="flex items-baseline gap-2.5">
+              <span className="text-[18px] font-semibold tracking-tight">
+                {tierProfile.label}
+              </span>
+              <span className="font-mono text-[10.5px] text-ink-muted">
+                {tierProfile.range}
+              </span>
+              {tierProfile.pmPriceMultiplier < 1 && (
+                <span
+                  className="hairline-soft rounded-full px-2 py-0.5 font-mono text-[9.5px] uppercase tracking-wider"
+                  style={{
+                    background: "rgba(4, 120, 87, 0.12)",
+                    color: "#047857",
+                  }}
+                >
+                  −{Math.round((1 - tierProfile.pmPriceMultiplier) * 100)} %
+                </span>
+              )}
+            </div>
+            <div className="text-[11.5px] text-ink-muted mt-1 leading-snug">
+              {tierProfile.description}
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted">
+              Fast / mån
+            </div>
+            <div className="font-mono text-[16px] font-semibold tabular-nums">
+              {formatSEK(fixedFee)} kr
+            </div>
+            <div className="font-mono text-[10px] text-ink-muted mt-0.5">
+              vid {pmPerMonth} PM/mån
+            </div>
+          </div>
+        </div>
+
         {/* Kvalitetspresets */}
         <div className="hairline rounded bg-paper p-4">
           <div className="flex items-center justify-between mb-3">
@@ -511,7 +572,8 @@ const ForecastView = ({
               const profile = PM_SIZES[size];
               const count = pmBySize[size];
               const aiCostSEK = costPerSizeUSD[size] * usdSek;
-              const chargedPerPM = aiCostSEK * (1 + markup / 100);
+              const chargedPerPM =
+                aiCostSEK * (1 + markup / 100) * tierProfile.pmPriceMultiplier;
               const monthlyForSize = chargedPerPM * count;
               return (
                 <div key={size} className="px-4 py-3 flex items-center gap-4">
@@ -605,7 +667,11 @@ const ForecastView = ({
                   (Object.keys(pmBySize) as PMSize[]).reduce(
                     (acc, s) =>
                       acc +
-                      costPerSizeUSD[s] * usdSek * (1 + markup / 100) * pmBySize[s],
+                      costPerSizeUSD[s] *
+                        usdSek *
+                        (1 + markup / 100) *
+                        tierProfile.pmPriceMultiplier *
+                        pmBySize[s],
                     0,
                   ),
                   0,
@@ -706,35 +772,52 @@ const ForecastView = ({
 
           <div className="grid grid-cols-2 gap-5 mt-4">
             <div>
-              <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center justify-between mb-2">
                 <span className="text-[11.5px] text-ink-soft">
-                  Fast månadsavgift (plattform · support)
+                  Prisnivå (auto från volym)
                 </span>
-                <input
-                  type="number"
-                  step="1000"
-                  value={fixedFee}
-                  onChange={(e) => setFixedFee(parseInt(e.target.value) || 0)}
-                  className="hairline-soft rounded px-2 py-1 w-24 font-mono text-[12px] text-right bg-cream/40 outline-none focus:bg-cream"
-                />
+                <button
+                  onClick={() => setTierOverride(null)}
+                  className="text-[10px] text-ink-muted hover:text-ink font-mono uppercase tracking-wider"
+                  disabled={tierOverride === null}
+                >
+                  {tierOverride === null ? "Auto" : "Återställ"}
+                </button>
               </div>
-              <div className="flex items-center gap-1.5 mt-2">
-                {[20_000, 35_000, 50_000, 75_000].map((f) => (
-                  <button
-                    key={f}
-                    onClick={() => setFixedFee(f)}
-                    className={`px-2 py-0.5 rounded text-[11px] font-mono ${
-                      fixedFee === f
-                        ? "bg-ink text-paper"
-                        : "hairline-soft text-ink-soft hover:bg-cream-2"
-                    }`}
-                  >
-                    {(f / 1000).toFixed(0)}k
-                  </button>
-                ))}
+              <div className="flex items-center gap-1 hairline-soft rounded p-0.5">
+                {(Object.keys(TIERS) as Tier[]).map((t) => {
+                  const profile = TIERS[t];
+                  const active = currentTier === t;
+                  return (
+                    <button
+                      key={t}
+                      onClick={() => setTierOverride(t)}
+                      className={`flex-1 px-2 py-1 rounded text-[11px] font-mono ${
+                        active
+                          ? "bg-ink text-paper"
+                          : "text-ink-muted hover:bg-cream-2"
+                      }`}
+                    >
+                      {profile.label}
+                    </button>
+                  );
+                })}
               </div>
               <div className="text-[10.5px] text-ink-muted mt-2 leading-snug">
-                Täcker Samify-licens, support, vidareutveckling, hosting
+                {tierProfile.description}
+                {tierProfile.pmPriceMultiplier < 1 && (
+                  <>
+                    {" · "}
+                    <span className="text-green-brand font-medium">
+                      {Math.round((1 - tierProfile.pmPriceMultiplier) * 100)} %
+                      volymrabatt
+                    </span>
+                  </>
+                )}
+              </div>
+              <div className="text-[11px] text-ink mt-1 font-mono">
+                Fast: <span className="font-medium">{formatSEK(fixedFee)} kr/mån</span>{" "}
+                · {tierProfile.range}
               </div>
             </div>
 
@@ -971,7 +1054,8 @@ const ForecastView = ({
             {(Object.keys(PM_SIZES) as PMSize[]).map((size) => {
               const p = PM_SIZES[size];
               const aiSek = costPerSizeUSD[size] * usdSek;
-              const chargedSek = aiSek * (1 + markup / 100);
+              const chargedSek =
+                aiSek * (1 + markup / 100) * tierProfile.pmPriceMultiplier;
               return (
                 <ResultRow
                   key={size}
@@ -992,6 +1076,7 @@ const ForecastView = ({
                         costPerSizeUSD[s] *
                           usdSek *
                           (1 + markup / 100) *
+                          tierProfile.pmPriceMultiplier *
                           pmBySize[s],
                       0,
                     ) / pmPerMonth

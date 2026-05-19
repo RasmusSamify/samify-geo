@@ -153,6 +153,65 @@ export const DEFAULT_USD_SEK = 10.5;
 export const DEFAULT_VAT = 0.25; // 25% moms
 
 // ============================================================
+// PRISNIVÅER (TIERS)
+// Plattformsavgift och volymrabatt anpassas efter kundvolym.
+// Pilot: lågvolym-kunder som etablerar referens. Standard: typisk
+// konsultbyrå. Enterprise: storkunder med dedikerad support och rabatt.
+// ============================================================
+
+export type Tier = "pilot" | "standard" | "enterprise";
+
+export type TierProfile = {
+  id: Tier;
+  label: string;
+  range: string;
+  pmRangeMin: number;
+  pmRangeMax: number;
+  fixedFeeSEK: number;
+  pmPriceMultiplier: number; // 1.0 default, < 1.0 = volymrabatt
+  description: string;
+};
+
+export const TIERS: Record<Tier, TierProfile> = {
+  pilot: {
+    id: "pilot",
+    label: "Pilot",
+    range: "0–5 PM/mån",
+    pmRangeMin: 0,
+    pmRangeMax: 5,
+    fixedFeeSEK: 18_000,
+    pmPriceMultiplier: 1.0,
+    description: "Lågvolym · etablera referens · subventionerad plattformsavgift",
+  },
+  standard: {
+    id: "standard",
+    label: "Standard",
+    range: "5–25 PM/mån",
+    pmRangeMin: 5,
+    pmRangeMax: 25,
+    fixedFeeSEK: 35_000,
+    pmPriceMultiplier: 1.0,
+    description: "Typisk konsultbyrå · full support · normalpris per PM",
+  },
+  enterprise: {
+    id: "enterprise",
+    label: "Enterprise",
+    range: "25+ PM/mån",
+    pmRangeMin: 25,
+    pmRangeMax: 9999,
+    fixedFeeSEK: 50_000,
+    pmPriceMultiplier: 0.88,
+    description: "Storkund · dedikerad success-manager · 12 % volymrabatt på PM",
+  },
+};
+
+export const detectTier = (pmPerMonth: number): Tier => {
+  if (pmPerMonth < TIERS.standard.pmRangeMin) return "pilot";
+  if (pmPerMonth < TIERS.enterprise.pmRangeMin) return "standard";
+  return "enterprise";
+};
+
+// ============================================================
 // PM-STORLEKSKLASSER
 // Olika rapporter har olika scope. En 8-sidors PM kräver mycket
 // mindre AI-arbete än en 50-sidors med 100+ provpunkter.
