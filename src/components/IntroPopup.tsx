@@ -13,7 +13,9 @@ export const IntroPopup = () => {
     document.body.style.overflow = "hidden";
 
     // Fokusera CTA-knappen direkt (mest naturligt nästa-steg)
-    setTimeout(() => ctaBtnRef.current?.focus(), 100);
+    // preventScroll förhindrar att webbläsaren auto-skrollar overlay-containern
+    // till knappen, vilket annars hamnar i botten av popupen.
+    setTimeout(() => ctaBtnRef.current?.focus({ preventScroll: true }), 100);
 
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") handleClose();
