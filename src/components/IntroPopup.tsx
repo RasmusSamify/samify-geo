@@ -78,30 +78,33 @@ export const IntroPopup = () => {
         </h1>
 
         <p className="intro-popup-intro">
-          Den vanligaste oron vi möter när vi visar det här för konsultverksamheter
-          är: <em>"Om AI skriver rapporterna — vad händer med våra timmar?"</em>
+          Den rimligaste frågan en konsultverksamhet ställer om ett verktyg som
+          det här är troligen den enklaste:{" "}
+          <em>"Om AI skriver rapporterna — vad händer med våra timmar?"</em>
         </p>
 
         <p className="intro-popup-lead">
-          Rimlig fråga. Men datan pekar åt ett annat håll än man tror.
+          Rimlig fråga. Datan ger ett tydligt — och kontraintuitivt — svar.
         </p>
 
         <div className="intro-popup-section">
-          <h2 className="intro-popup-h2">Vad konsulter med AI faktiskt presterar</h2>
+          <h2 className="intro-popup-h2">Vad konsulter med AI faktiskt levererar</h2>
           <p className="intro-popup-body">
-            En studie från Harvard Business School följde konsulter som fick AI
-            integrerat i sitt arbete. De levererade{" "}
-            <span className="intro-popup-stat">25,1 %</span> snabbare,{" "}
-            <span className="intro-popup-stat">12,2 %</span> fler uppdrag, och med
-            över <span className="intro-popup-stat">40 %</span> högre kvalitet
-            jämfört med kontrollgruppen.
+            Harvard Business School körde 2023 en kontrollerad studie där
+            konsulter fick tillgång till AI i vardagsarbetet. Mot kontrollgruppen
+            utan AI levererade de{" "}
+            <span className="intro-popup-stat">25,1 %</span> snabbare, klarade{" "}
+            <span className="intro-popup-stat">12,2 %</span> fler uppdrag, och
+            fick kvalitetsbedömningar över{" "}
+            <span className="intro-popup-stat">40 %</span> högre.
           </p>
           <p className="intro-popup-body">
-            I miljökonsultbranschen specifikt rapporteras{" "}
+            För miljökonsulter specifikt rapporteras{" "}
             <span className="intro-popup-stat">30–50 %</span> tidsbesparing på
-            rutinanalys och rapportering, samt{" "}
+            rutinanalys och rapportering, och{" "}
             <span className="intro-popup-stat">40–60 %</span> kortare ledtid på
-            miljökonsekvensbeskrivningar — utan att tumma på regelefterlevnaden.
+            miljökonsekvensbeskrivningar — utan att kompromissa med
+            regelefterlevnad.
           </p>
         </div>
 
@@ -110,58 +113,88 @@ export const IntroPopup = () => {
           <p className="intro-popup-body">
             EY:s AI Pulse Survey 2025:{" "}
             <span className="intro-popup-stat">96 %</span> av organisationer som
-            investerat i AI ser produktivitetsvinster. Bara{" "}
-            <span className="intro-popup-stat">17 %</span> använder vinsterna till
-            att skära ner personal — resten reinvesterar i ny kapacitet, R&D och
-            bredare tjänsteutbud.
+            investerat i AI ser mätbara produktivitetsvinster. Endast{" "}
+            <span className="intro-popup-stat">17 %</span> omsätter dem i
+            personalnedskärningar — resterande{" "}
+            <span className="intro-popup-stat">83 %</span> reinvesterar i ny
+            kapacitet, R&D och bredare tjänsteutbud.
           </p>
           <p className="intro-popup-body">
-            Översatt till miljökonsult: tiden som sparas på datautdrag,
-            korsreferering, formatering och första utkast hamnar i kvalificerad
-            rådgivning. Det ni är värda ert timpris för. Det klienten faktiskt
-            vill betala för.
+            Översatt till miljökonsult: timmarna som försvinner är datautdrag,
+            korsreferering, formatering och första utkast. Timmarna som blir kvar
+            är rådgivning, riskbedömning och förhandling — det klienten faktiskt
+            vill betala för, och det enda ert timpris är försvarbart för.
           </p>
         </div>
 
         <div className="intro-popup-section">
-          <h2 className="intro-popup-h2">Vad AI inte gör — och därför behöver er</h2>
+          <h2 className="intro-popup-h2">
+            Vad AI inte klarar — och därför behöver er
+          </h2>
           <div className="intro-popup-columns">
             <div className="intro-popup-col">
               <div className="intro-popup-col-label">AI gör</div>
               <ul className="intro-popup-list intro-popup-list-gold">
-                <li>Extraherar kontamineringsdata ur 200 sidor PDF på sekunder</li>
                 <li>
-                  Korsrefererar KM/MKM-värden mellan jurisdiktioner i bakgrunden
+                  Extraherar kontamineringsdata ur 200 sidor labbprotokoll på
+                  sekunder
                 </li>
-                <li>Skriver första utkastet till statusrapporten</li>
+                <li>
+                  Korsrefererar KM/MKM-värden mellan jurisdiktioner medan ni sover
+                </li>
+                <li>Skriver första utkastet av statusrapporten</li>
               </ul>
             </div>
             <div className="intro-popup-col">
               <div className="intro-popup-col-label">AI gör inte</div>
               <ul className="intro-popup-list intro-popup-list-purple">
-                <li>Skiljer gammal rostfläck från färskt spill</li>
-                <li>Ser blänken på vattnet och anar en kolvätesplym</li>
+                <li>Skiljer gammal rostfläck från färskt oljespill i fält</li>
+                <li>Ser blänket på vattnet och anar en kolvätesplym</li>
                 <li>
-                  Sitter i förhandling med Länsstyrelsen och bedömer vad de{" "}
+                  Sitter i förhandling med Länsstyrelsen och tolkar vad de{" "}
                   <em>egentligen</em> kommer kräva
                 </li>
               </ul>
             </div>
           </div>
           <p className="intro-popup-body intro-popup-italic">
-            Det är där expertisen ligger. Resten är arbete som inte gör er rikare —
-            bara mer trötta.
+            Där ligger expertisen. Resten är arbete som inte gör er rikare — bara
+            mer slitna.
+          </p>
+        </div>
+
+        <div className="intro-popup-section">
+          <h2 className="intro-popup-h2">Att leda kräver mer än att börja</h2>
+          <p className="intro-popup-body">
+            Att börja med AI är trivialt 2026 — alla gör det. Att göra det rätt —
+            så försprånget kan försvaras med data idag och fortsätter funka om
+            ett år — är vad som faktiskt skiljer leder från följer.
+          </p>
+          <p className="intro-popup-body">
+            <strong>Mätbarhet är skillnaden.</strong> Varje sparad timme, varje
+            hotspot fångad, varje uppdrag levererat snabbare — synligt i klartext,
+            inte i påståenden.
+          </p>
+          <p className="intro-popup-body">
+            <strong>Partnerskap är skillnaden.</strong> AI-landskapet om tolv
+            månader ser inte ut som idag. Samify Geo är inte ett verktyg ni köper
+            en gång — det är en plattform som utvecklas med er, mot den verklighet
+            ni vaknar upp till 2027.
+          </p>
+          <p className="intro-popup-body intro-popup-italic">
+            Beslut styrs av statistik, inte magkänsla. Idag — och om ett år.
           </p>
         </div>
 
         <div className="intro-popup-divider" aria-hidden />
 
         <p className="intro-popup-conclusion">
-          Det är inte AI som springer om en miljökonsult. Det är en annan
-          miljökonsult som hunnit längre med AI än ni.
+          AI springer inte om en miljökonsult. En annan miljökonsult som hunnit
+          längre med AI gör det.
         </p>
         <p className="intro-popup-subconclusion">
-          Frågan är inte om ni anpassar er. Det är om ni leder eller följer.
+          Frågan är inte om branschen anpassar sig. Det är om Geosyntec gör det
+          rätt — för idag och för framtiden.
         </p>
 
         <button

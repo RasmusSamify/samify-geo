@@ -599,6 +599,11 @@ table.data-table tr.selected td {
   margin-bottom: 0;
 }
 
+.intro-popup-body strong {
+  font-weight: 600;
+  color: var(--text);
+}
+
 .intro-popup-italic {
   font-style: italic;
   color: var(--text-muted);
