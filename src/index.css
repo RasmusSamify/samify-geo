@@ -466,10 +466,11 @@ table.data-table tr.selected td {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: safe center;
+  justify-content: safe center;
   padding: 32px 24px;
   overflow-y: auto;
+  overscroll-behavior: contain;
   animation: introOverlayFade 0.25s ease-out;
 }
 
