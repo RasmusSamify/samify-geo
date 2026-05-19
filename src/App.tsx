@@ -12,6 +12,9 @@ import { TemplatesPage } from "./pages/TemplatesPage";
 import { IntegrationsPage } from "./pages/IntegrationsPage";
 import { RoadmapPage } from "./pages/RoadmapPage";
 import { DashboardPage } from "./pages/DashboardPage";
+import { BillingPage } from "./pages/BillingPage";
+import { AccessDeniedPage } from "./pages/AccessDeniedPage";
+import { useRole } from "./hooks/useRole";
 
 const DemoWorkflow = () => {
   const { stage, setStage, tab, setTab, speed, setSpeed } = useDemoState();
@@ -48,6 +51,17 @@ const StandalonePage = ({ children }: { children: React.ReactNode }) => (
     <div className="flex-1 flex flex-col overflow-hidden">{children}</div>
   </>
 );
+
+const RoleGuard = ({
+  route,
+  children,
+}: {
+  route: string;
+  children: React.ReactNode;
+}) => {
+  const { canAccess } = useRole();
+  return <>{canAccess(route) ? children : <AccessDeniedPage />}</>;
+};
 
 function App() {
   return (
@@ -99,6 +113,16 @@ function App() {
           element={
             <StandalonePage>
               <RoadmapPage />
+            </StandalonePage>
+          }
+        />
+        <Route
+          path="/billing"
+          element={
+            <StandalonePage>
+              <RoleGuard route="/billing">
+                <BillingPage />
+              </RoleGuard>
             </StandalonePage>
           }
         />
