@@ -82,11 +82,11 @@ export const IntroPopup = () => {
         <p className="intro-popup-intro">
           Den rimligaste frågan en konsultverksamhet ställer om ett verktyg som
           det här är troligen den enklaste:{" "}
-          <em>"Om AI skriver rapporterna — vad händer med våra timmar?"</em>
+          <em>"Om AI skriver rapporterna, vad händer med våra timmar?"</em>
         </p>
 
         <p className="intro-popup-lead">
-          Rimlig fråga. Datan ger ett tydligt — och kontraintuitivt — svar.
+          Rimlig fråga. Men datan ger ett tydligt och kontraintuitivt svar.
         </p>
 
         <div className="intro-popup-section">
@@ -105,7 +105,7 @@ export const IntroPopup = () => {
             <span className="intro-popup-stat">30–50 %</span> tidsbesparing på
             rutinanalys och rapportering, och{" "}
             <span className="intro-popup-stat">40–60 %</span> kortare ledtid på
-            miljökonsekvensbeskrivningar — utan att kompromissa med
+            miljökonsekvensbeskrivningar. Utan att kompromissa med
             regelefterlevnad.
           </p>
         </div>
@@ -117,21 +117,22 @@ export const IntroPopup = () => {
             <span className="intro-popup-stat">96 %</span> av organisationer som
             investerat i AI ser mätbara produktivitetsvinster. Endast{" "}
             <span className="intro-popup-stat">17 %</span> omsätter dem i
-            personalnedskärningar — resterande{" "}
+            personalnedskärningar. Resterande{" "}
             <span className="intro-popup-stat">83 %</span> reinvesterar i ny
             kapacitet, R&D och bredare tjänsteutbud.
           </p>
           <p className="intro-popup-body">
             Översatt till miljökonsult: timmarna som försvinner är datautdrag,
             korsreferering, formatering och första utkast. Timmarna som blir kvar
-            är rådgivning, riskbedömning och förhandling — det klienten faktiskt
-            vill betala för, och det enda ert timpris är försvarbart för.
+            är rådgivning, riskbedömning och förhandling. Det är vad klienten
+            faktiskt vill betala för, och det enda ert timpris är försvarbart
+            för.
           </p>
         </div>
 
         <div className="intro-popup-section">
           <h2 className="intro-popup-h2">
-            Vad AI inte klarar — och därför behöver er
+            Vad AI inte klarar, och därför behöver er
           </h2>
           <div className="intro-popup-columns">
             <div className="intro-popup-col">
@@ -160,7 +161,7 @@ export const IntroPopup = () => {
             </div>
           </div>
           <p className="intro-popup-body intro-popup-italic">
-            Där ligger expertisen. Resten är arbete som inte gör er rikare — bara
+            Där ligger expertisen. Resten är arbete som inte gör er rikare, bara
             mer slitna.
           </p>
         </div>
@@ -168,35 +169,34 @@ export const IntroPopup = () => {
         <div className="intro-popup-section">
           <h2 className="intro-popup-h2">Att leda kräver mer än att börja</h2>
           <p className="intro-popup-body">
-            Att börja med AI är trivialt 2026 — alla gör det. Att göra det rätt —
-            så försprånget kan försvaras med data idag och fortsätter funka om
-            ett år — är vad som faktiskt skiljer leder från följer.
+            Att börja med AI är trivialt 2026. Alla gör det. Att göra det rätt är
+            vad som faktiskt skapar försprång. Försprång som kan försvaras med
+            data idag, och fortfarande funkar om ett år.
           </p>
           <p className="intro-popup-body">
             <strong>Mätbarhet är skillnaden.</strong> Varje sparad timme, varje
-            hotspot fångad, varje uppdrag levererat snabbare — synligt i klartext,
+            hotspot fångad, varje uppdrag levererat snabbare. Synligt i klartext,
             inte i påståenden.
           </p>
           <p className="intro-popup-body">
             <strong>Partnerskap är skillnaden.</strong> AI-landskapet om tolv
             månader ser inte ut som idag. Samify Geo är inte ett verktyg ni köper
-            en gång — det är en plattform som utvecklas med er, mot den verklighet
-            ni vaknar upp till 2027.
+            en gång. Det är en plattform som utvecklas med er, mot den verklighet
+            ni vaknar upp till 2027. Och 2028. Och 2029.
           </p>
           <p className="intro-popup-body intro-popup-italic">
-            Beslut styrs av statistik, inte magkänsla. Idag — och om ett år.
+            Beslut styrs av statistik, inte magkänsla. Idag. Och om ett år.
           </p>
         </div>
 
         <div className="intro-popup-divider" aria-hidden />
 
         <p className="intro-popup-conclusion">
-          AI springer inte om en miljökonsult. En annan miljökonsult som hunnit
-          längre med AI gör det.
+          Försprånget kommer inte av att börja med AI. Det kommer av att börja
+          rätt.
         </p>
         <p className="intro-popup-subconclusion">
-          Frågan är inte om branschen anpassar sig. Det är om Geosyntec gör det
-          rätt — för idag och för framtiden.
+          Branschen anpassar sig redan. Frågan är om Geosyntec gör det rätt.
         </p>
 
         <button
