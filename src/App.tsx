@@ -15,6 +15,7 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { BillingPage } from "./pages/BillingPage";
 import { AccessDeniedPage } from "./pages/AccessDeniedPage";
 import { useRole } from "./hooks/useRole";
+import { IntroPopup } from "./components/IntroPopup";
 
 const DemoWorkflow = () => {
   const { stage, setStage, tab, setTab, speed, setSpeed } = useDemoState();
@@ -66,6 +67,7 @@ const RoleGuard = ({
 function App() {
   return (
     <div className="h-screen flex flex-col bg-cream overflow-hidden">
+      <IntroPopup />
       <Routes>
         <Route path="/" element={<DemoWorkflow />} />
         <Route

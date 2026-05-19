@@ -7,9 +7,11 @@ import {
   DEFAULT_USD_SEK,
   DEFAULT_VAT,
   MODELS,
+  PM_SIZES,
   calculateCostPerPM,
+  calculateCostPerSize,
 } from "../data/pricing";
-import type { ModelId } from "../data/pricing";
+import type { ModelId, PMSize } from "../data/pricing";
 import { useRole } from "../hooks/useRole";
 
 type Mode = "forecast" | "history" | "invoice";
@@ -186,12 +188,17 @@ export const BillingPage = () => {
   const [mode, setMode] = useState<Mode>("forecast");
   const [usdSek, setUsdSek] = useState(DEFAULT_USD_SEK);
   const [vat, setVat] = useState(DEFAULT_VAT);
-  const [pmPerMonth, setPmPerMonth] = useState(50);
+  const [pmBySize, setPmBySize] = useState<Record<PMSize, number>>({
+    small: 8,
+    standard: 30,
+    large: 10,
+    xl: 2,
+  });
   const [modelOverrides, setModelOverrides] = useState<Partial<Record<string, ModelId>>>(
     {},
   );
   const [batchDiscount, setBatchDiscount] = useState(false);
-  // VD-kontroller
+  // Samify owner-kontroller
   const [fixedFee, setFixedFee] = useState(35_000); // SEK/mån fast plattformsavgift
   const [markup, setMarkup] = useState(50); // % påslag på AI-kostnaden
 
@@ -201,7 +208,27 @@ export const BillingPage = () => {
   );
   const costPerPM = batchDiscount ? costPerPMRaw * 0.5 : costPerPMRaw;
 
-  const monthlyUSD = costPerPM * pmPerMonth;
+  // AI-kostnad per storleksklass (USD)
+  const costPerSizeUSD = useMemo(() => {
+    const result = {} as Record<PMSize, number>;
+    (Object.keys(PM_SIZES) as PMSize[]).forEach((size) => {
+      const raw = calculateCostPerSize(size, modelOverrides);
+      result[size] = batchDiscount ? raw * 0.5 : raw;
+    });
+    return result;
+  }, [modelOverrides, batchDiscount]);
+
+  // Total volym över alla storlekar
+  const pmPerMonth = (Object.keys(pmBySize) as PMSize[]).reduce(
+    (acc, s) => acc + pmBySize[s],
+    0,
+  );
+
+  // Total AI-kostnad (USD) viktad över storlekar
+  const monthlyUSD = (Object.keys(pmBySize) as PMSize[]).reduce(
+    (acc, s) => acc + costPerSizeUSD[s] * pmBySize[s],
+    0,
+  );
   const monthlySEK = monthlyUSD * usdSek;
 
   return (
@@ -307,8 +334,10 @@ export const BillingPage = () => {
 
         {mode === "forecast" && (
           <ForecastView
+            pmBySize={pmBySize}
+            setPmBySize={setPmBySize}
             pmPerMonth={pmPerMonth}
-            setPmPerMonth={setPmPerMonth}
+            costPerSizeUSD={costPerSizeUSD}
             modelOverrides={modelOverrides}
             setModelOverrides={setModelOverrides}
             batchDiscount={batchDiscount}
@@ -354,8 +383,10 @@ export const BillingPage = () => {
 // FORECAST VIEW · Live-kalkylator
 // ============================================================
 const ForecastView = ({
+  pmBySize,
+  setPmBySize,
   pmPerMonth,
-  setPmPerMonth,
+  costPerSizeUSD,
   modelOverrides,
   setModelOverrides,
   batchDiscount,
@@ -373,8 +404,10 @@ const ForecastView = ({
   applyPreset,
   isOwner,
 }: {
+  pmBySize: Record<PMSize, number>;
+  setPmBySize: (m: Record<PMSize, number>) => void;
   pmPerMonth: number;
-  setPmPerMonth: (n: number) => void;
+  costPerSizeUSD: Record<PMSize, number>;
   modelOverrides: Partial<Record<string, ModelId>>;
   setModelOverrides: (m: Partial<Record<string, ModelId>>) => void;
   batchDiscount: boolean;
@@ -453,49 +486,133 @@ const ForecastView = ({
           </div>
         </div>
 
-        {/* Presets + volym slider */}
-        <div className="hairline rounded bg-paper p-4">
-          <div className="flex items-center justify-between mb-3">
+        {/* Volym per storleksklass */}
+        <div className="hairline rounded bg-paper overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-line-soft">
             <div>
               <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted">
-                Volym
+                Volym & rapportstorlek
               </div>
-              <div className="text-[13.5px] font-medium">PM Markmiljö per månad</div>
+              <div className="text-[13.5px] font-medium">
+                Förväntad fördelning av PM per månad
+              </div>
             </div>
-            <div className="text-[24px] font-semibold tracking-tight tabular-nums">
-              {pmPerMonth}
+            <div className="text-right">
+              <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted">
+                Totalt
+              </div>
+              <div className="text-[22px] font-semibold tracking-tight leading-none tabular-nums">
+                {pmPerMonth}
+              </div>
             </div>
           </div>
-          <input
-            type="range"
-            min="1"
-            max="200"
-            value={pmPerMonth}
-            onChange={(e) => setPmPerMonth(parseInt(e.target.value))}
-            className="w-full"
-            style={{ accentColor: "var(--accent)" }}
-          />
-          <div className="flex items-center justify-between text-[10px] font-mono text-ink-muted mt-1">
-            <span>1</span>
-            <span>50</span>
-            <span>100</span>
-            <span>150</span>
-            <span>200</span>
-          </div>
-          <div className="flex items-center gap-1.5 mt-3">
-            {[10, 25, 50, 75, 100, 150].map((n) => (
-              <button
-                key={n}
-                onClick={() => setPmPerMonth(n)}
-                className={`px-2 py-0.5 rounded text-[11px] font-mono ${
-                  pmPerMonth === n
-                    ? "bg-ink text-paper"
-                    : "hairline-soft text-ink-soft hover:bg-cream-2"
-                }`}
-              >
-                {n}
-              </button>
-            ))}
+          <div className="divide-y divide-line-soft">
+            {(Object.keys(PM_SIZES) as PMSize[]).map((size) => {
+              const profile = PM_SIZES[size];
+              const count = pmBySize[size];
+              const aiCostSEK = costPerSizeUSD[size] * usdSek;
+              const chargedPerPM = aiCostSEK * (1 + markup / 100);
+              const monthlyForSize = chargedPerPM * count;
+              return (
+                <div key={size} className="px-4 py-3 flex items-center gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[13px] font-medium">{profile.label}</span>
+                      <span className="font-mono text-[10px] text-ink-muted">
+                        {profile.pages}
+                      </span>
+                      <span className="text-ink-muted">·</span>
+                      <span className="font-mono text-[10px] text-ink-muted">
+                        {profile.samplePoints}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-ink-muted mt-0.5">
+                      {profile.description}
+                    </div>
+                  </div>
+
+                  <div className="text-right w-28">
+                    <div className="font-mono text-[9.5px] uppercase tracking-wider text-ink-muted mb-0.5">
+                      {isOwner ? "AI / Pris per PM" : "Pris per PM"}
+                    </div>
+                    <div className="font-mono text-[12px]">
+                      {isOwner && (
+                        <span className="text-ink-muted">
+                          {formatSEK(aiCostSEK, 0)}
+                          {" / "}
+                        </span>
+                      )}
+                      <span className="font-medium text-ink">
+                        {formatSEK(chargedPerPM, 0)} kr
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-0.5 hairline-soft rounded">
+                    <button
+                      onClick={() =>
+                        setPmBySize({
+                          ...pmBySize,
+                          [size]: Math.max(0, count - 1),
+                        })
+                      }
+                      className="w-7 h-7 flex items-center justify-center text-ink-muted hover:bg-cream-2 transition-colors text-[15px] leading-none"
+                    >
+                      −
+                    </button>
+                    <input
+                      type="number"
+                      min="0"
+                      value={count}
+                      onChange={(e) =>
+                        setPmBySize({
+                          ...pmBySize,
+                          [size]: Math.max(0, parseInt(e.target.value) || 0),
+                        })
+                      }
+                      className="w-12 text-center bg-transparent font-mono text-[13px] font-medium outline-none"
+                    />
+                    <button
+                      onClick={() =>
+                        setPmBySize({ ...pmBySize, [size]: count + 1 })
+                      }
+                      className="w-7 h-7 flex items-center justify-center text-ink-muted hover:bg-cream-2 transition-colors text-[15px] leading-none"
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  <div className="w-24 text-right font-mono text-[12.5px] font-semibold tabular-nums">
+                    {count > 0 ? `${formatSEK(monthlyForSize, 0)} kr` : "—"}
+                  </div>
+                </div>
+              );
+            })}
+            <div className="px-4 py-3 flex items-center gap-4 bg-cream/40">
+              <div className="flex-1 text-[12px] text-ink-muted">
+                Total volym {pmPerMonth} PM/mån, varav{" "}
+                <span className="font-mono text-ink">
+                  {(((pmBySize.small + pmBySize.standard) / Math.max(1, pmPerMonth)) * 100).toFixed(0)}%
+                </span>{" "}
+                liten/standard,{" "}
+                <span className="font-mono text-ink">
+                  {(((pmBySize.large + pmBySize.xl) / Math.max(1, pmPerMonth)) * 100).toFixed(0)}%
+                </span>{" "}
+                stor/XL
+              </div>
+              <div className="w-24 text-right font-mono text-[14px] font-bold tabular-nums">
+                {formatSEK(
+                  (Object.keys(pmBySize) as PMSize[]).reduce(
+                    (acc, s) =>
+                      acc +
+                      costPerSizeUSD[s] * usdSek * (1 + markup / 100) * pmBySize[s],
+                    0,
+                  ),
+                  0,
+                )}{" "}
+                kr
+              </div>
+            </div>
           </div>
         </div>
 
@@ -751,16 +868,30 @@ const ForecastView = ({
       <div className="space-y-4">
         <div className="hairline rounded bg-ink text-paper p-5">
           <div className="font-mono text-[10px] uppercase tracking-wider text-paper/60 mb-2">
-            Faktureras till Geosyntec
+            {isOwner ? "Faktureras till Geosyntec" : "Månadskostnad"}
           </div>
           <div className="text-[36px] font-bold tracking-tight leading-none tabular-nums">
             {formatSEK(totalChargedSEK)}{" "}
             <span className="text-[18px] font-medium text-paper/70">kr/mån</span>
           </div>
           <div className="text-[11.5px] text-paper/60 mt-1.5 font-mono">
-            {formatSEK(fixedFee)} (fast) + {formatSEK(aiCostWithMarkupSEK, 0)} (AI +
-            {markup}%)
+            {isOwner ? (
+              <>
+                {formatSEK(fixedFee)} (fast) +{" "}
+                {formatSEK(aiCostWithMarkupSEK, 0)} (AI +{markup}%)
+              </>
+            ) : (
+              <>
+                {formatSEK(fixedFee)} plattform +{" "}
+                {formatSEK(aiCostWithMarkupSEK, 0)} användning ({pmPerMonth} PM)
+              </>
+            )}
           </div>
+          {!isOwner && (
+            <div className="text-[10.5px] text-paper/50 mt-1 leading-snug">
+              Inkluderar Claude API, infrastruktur, support och uppdateringar
+            </div>
+          )}
           <div className="mt-4 pt-4 border-t border-paper/15 grid grid-cols-2 gap-3 text-[11px]">
             <div>
               <div className="text-paper/60 font-mono uppercase tracking-wider text-[9.5px] mb-0.5">
@@ -834,55 +965,42 @@ const ForecastView = ({
 
         <div className="hairline rounded bg-paper p-4">
           <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mb-2.5">
-            Per PM
+            Per storleksklass
           </div>
           <div className="space-y-2">
-            {isOwner && (
-              <ResultRow
-                label="AI-kostnad / PM (direktkostnad)"
-                value={`${formatSEK(costPerPM * usdSek, 2)} kr`}
-                sub={`$${formatUSD(costPerPM, 2)}`}
-              />
-            )}
+            {(Object.keys(PM_SIZES) as PMSize[]).map((size) => {
+              const p = PM_SIZES[size];
+              const aiSek = costPerSizeUSD[size] * usdSek;
+              const chargedSek = aiSek * (1 + markup / 100);
+              return (
+                <ResultRow
+                  key={size}
+                  label={`${p.label} (${p.pages})`}
+                  value={`${formatSEK(chargedSek, 0)} kr`}
+                  sub={isOwner ? `AI: ${formatSEK(aiSek, 0)} kr` : undefined}
+                />
+              );
+            })}
+            <div className="border-t border-line-soft pt-2 mt-2" />
             <ResultRow
-              label={isOwner ? "Debiteras Geosyntec / PM" : "Kostnad per PM"}
-              value={`${formatSEK(costPerPM * usdSek * (1 + markup / 100), 0)} kr`}
-              sub={isOwner ? `+${markup}%` : undefined}
+              label="Snittpris per PM (din mix)"
+              value={`${formatSEK(
+                pmPerMonth > 0
+                  ? (Object.keys(pmBySize) as PMSize[]).reduce(
+                      (acc, s) =>
+                        acc +
+                        costPerSizeUSD[s] *
+                          usdSek *
+                          (1 + markup / 100) *
+                          pmBySize[s],
+                      0,
+                    ) / pmPerMonth
+                  : 0,
+                0,
+              )} kr`}
             />
-            <ResultRow
-              label="Tokens / PM (input)"
-              value={formatTokens(
-                AGENT_PROFILES.reduce(
-                  (a, b) =>
-                    a +
-                    b.tokensPerPM.inputFresh +
-                    b.tokensPerPM.inputCacheRead +
-                    b.tokensPerPM.inputCacheWrite,
-                  0,
-                ),
-              )}
-            />
-            <ResultRow label="LLM-anrop / PM" value="~32" sub="5 agenter" />
           </div>
         </div>
-
-        {/* Brytpunkter för Gustav - visar totalkostnad inkl. fast avgift */}
-        {!isOwner && (
-          <div className="hairline rounded bg-paper p-4">
-            <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mb-2.5">
-              Brytpunkter
-            </div>
-            <div className="space-y-2 text-[11.5px]">
-              {[10, 25, 50, 75, 100, 150].map((n) => (
-                <ResultRow
-                  key={n}
-                  label={`Vid ${n} PM/mån`}
-                  value={`${formatSEK(fixedFee + costPerPM * usdSek * (1 + markup / 100) * n)} kr`}
-                />
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

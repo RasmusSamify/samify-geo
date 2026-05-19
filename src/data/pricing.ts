@@ -151,3 +151,81 @@ export const calculateCostPerPM = (
 // USD → SEK växelkurs (justerbar i UI)
 export const DEFAULT_USD_SEK = 10.5;
 export const DEFAULT_VAT = 0.25; // 25% moms
+
+// ============================================================
+// PM-STORLEKSKLASSER
+// Olika rapporter har olika scope. En 8-sidors PM kräver mycket
+// mindre AI-arbete än en 50-sidors med 100+ provpunkter.
+// tokenMultiplier multiplicerar bas-tokens (AGENT_PROFILES) per PM.
+// ============================================================
+
+export type PMSize = "small" | "standard" | "large" | "xl";
+
+export type PMSizeProfile = {
+  id: PMSize;
+  label: string;
+  description: string;
+  pages: string;
+  samplePoints: string;
+  tokenMultiplier: number; // skalfaktor på AI-kostnad
+  basePriceSEK: number; // riktpris till kund (vad Geosyntec betalar)
+};
+
+export const PM_SIZES: Record<PMSize, PMSizeProfile> = {
+  small: {
+    id: "small",
+    label: "Liten",
+    description: "Mindre objekt · enkel klassning",
+    pages: "8–15 sidor",
+    samplePoints: "~10 provpunkter",
+    tokenMultiplier: 0.4,
+    basePriceSEK: 450,
+  },
+  standard: {
+    id: "standard",
+    label: "Standard",
+    description: "Typisk markundersökning",
+    pages: "15–30 sidor",
+    samplePoints: "~30 provpunkter",
+    tokenMultiplier: 1.0,
+    basePriceSEK: 850,
+  },
+  large: {
+    id: "large",
+    label: "Stor",
+    description: "Komplex undersökning · flera hotspots",
+    pages: "30–50 sidor",
+    samplePoints: "~80 provpunkter",
+    tokenMultiplier: 2.5,
+    basePriceSEK: 2000,
+  },
+  xl: {
+    id: "xl",
+    label: "XL",
+    description: "MIFO fas 2 · riskbedömning · stor RAG-kontext",
+    pages: "50+ sidor",
+    samplePoints: "100+ provpunkter",
+    tokenMultiplier: 4.5,
+    basePriceSEK: 3800,
+  },
+};
+
+// Skala token-usage med size-multiplikator
+export const scaleTokensBySize = (usage: TokenUsage, mult: number): TokenUsage => ({
+  inputFresh: Math.round(usage.inputFresh * mult),
+  inputCacheRead: Math.round(usage.inputCacheRead * mult),
+  inputCacheWrite: Math.round(usage.inputCacheWrite * mult),
+  output: Math.round(usage.output * mult),
+});
+
+// AI-kostnad per PM givet en storlek
+export const calculateCostPerSize = (
+  size: PMSize,
+  modelOverrides: Partial<Record<string, ModelId>> = {},
+): number => {
+  const mult = PM_SIZES[size].tokenMultiplier;
+  return AGENT_PROFILES.reduce((acc, agent) => {
+    const model = modelOverrides[agent.id] ?? agent.defaultModel;
+    return acc + calculateCostUSD(model, scaleTokensBySize(agent.tokensPerPM, mult));
+  }, 0);
+};

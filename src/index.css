@@ -411,3 +411,353 @@ table.data-table tr.selected td {
     "IBM Plex Mono", "JetBrains Mono", monospace;
   font-feature-settings: "tnum";
 }
+
+/* ============================================================
+   INTRO POPUP — editorial overlay för demot
+   ============================================================ */
+
+@keyframes introOverlayFade {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+  }
+}
+
+@keyframes introCardRise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes introOverlayFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes introCardSink {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.intro-popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  overflow-y: auto;
+  animation: introOverlayFade 0.25s ease-out;
+}
+
+.intro-popup-closing {
+  animation: introOverlayFadeOut 0.22s ease-out forwards;
+}
+.intro-popup-closing .intro-popup-card {
+  animation: introCardSink 0.22s ease-out forwards;
+}
+
+.intro-popup-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  max-width: 720px;
+  width: 100%;
+  padding: 56px;
+  padding-left: 64px;
+  box-shadow:
+    0 24px 48px rgba(15, 23, 42, 0.18),
+    0 8px 16px rgba(15, 23, 42, 0.08);
+  animation: introCardRise 0.28s ease-out both;
+  font-family: "Montserrat", sans-serif;
+}
+
+/* Vänster guld-rail */
+.intro-popup-rail {
+  position: absolute;
+  top: 56px;
+  bottom: 56px;
+  left: 32px;
+  width: 2px;
+  background: var(--gold);
+  border-radius: 1px;
+}
+
+.intro-popup-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+.intro-popup-close:hover {
+  color: var(--samify-purple);
+  background: var(--bg-soft);
+}
+
+.intro-popup-eyebrow {
+  font-family: "IBM Plex Mono", "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  margin-bottom: 18px;
+}
+
+.intro-popup-title {
+  font-family: "Montserrat", sans-serif;
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.022em;
+  color: var(--text);
+  margin: 0 0 28px;
+}
+
+.intro-popup-title-emph {
+  color: var(--samify-purple);
+  font-style: italic;
+  font-weight: 500;
+}
+
+.intro-popup-intro {
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin: 0 0 14px;
+}
+
+.intro-popup-intro em {
+  font-style: italic;
+  color: var(--text-soft);
+}
+
+.intro-popup-lead {
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: var(--text);
+  margin: 0 0 32px;
+  font-weight: 500;
+}
+
+.intro-popup-section {
+  margin-bottom: 28px;
+}
+
+.intro-popup-h2 {
+  font-family: "Montserrat", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  color: var(--text);
+  margin: 0 0 12px;
+}
+
+.intro-popup-body {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--text-soft);
+  margin: 0 0 10px;
+}
+
+.intro-popup-body:last-child {
+  margin-bottom: 0;
+}
+
+.intro-popup-italic {
+  font-style: italic;
+  color: var(--text-muted);
+  margin-top: 16px;
+}
+
+.intro-popup-stat {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: -0.01em;
+}
+
+.intro-popup-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 8px;
+}
+
+.intro-popup-col-label {
+  font-family: "IBM Plex Mono", "JetBrains Mono", monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.intro-popup-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.intro-popup-list li {
+  position: relative;
+  padding-left: 16px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-soft);
+  margin-bottom: 10px;
+}
+
+.intro-popup-list li:last-child {
+  margin-bottom: 0;
+}
+
+.intro-popup-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.intro-popup-list-gold li::before {
+  background: var(--gold);
+}
+
+.intro-popup-list-purple li::before {
+  background: var(--samify-purple);
+}
+
+.intro-popup-list li em {
+  font-style: italic;
+}
+
+.intro-popup-divider {
+  width: 60px;
+  height: 1px;
+  background: var(--gold);
+  margin: 32px 0 24px;
+  opacity: 0.6;
+}
+
+.intro-popup-conclusion {
+  font-family: "Montserrat", sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  margin: 0 0 10px;
+}
+
+.intro-popup-subconclusion {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  margin: 0 0 32px;
+}
+
+.intro-popup-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--text);
+  color: var(--surface);
+  border: none;
+  font-family: "Montserrat", sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 15px 26px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.05s ease;
+}
+.intro-popup-cta:hover {
+  background: var(--samify-purple);
+}
+.intro-popup-cta:active {
+  transform: translateY(0.5px);
+}
+.intro-popup-cta:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.intro-popup-sources {
+  font-family: "IBM Plex Mono", "JetBrains Mono", monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  line-height: 1.6;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-soft);
+}
+
+@media (max-width: 640px) {
+  .intro-popup-overlay {
+    padding: 16px;
+    align-items: flex-start;
+  }
+  .intro-popup-card {
+    padding: 40px 28px 40px 36px;
+  }
+  .intro-popup-rail {
+    top: 40px;
+    bottom: 40px;
+    left: 20px;
+  }
+  .intro-popup-title {
+    font-size: 28px;
+  }
+  .intro-popup-h2 {
+    font-size: 16.5px;
+  }
+  .intro-popup-conclusion {
+    font-size: 18px;
+  }
+  .intro-popup-columns {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
