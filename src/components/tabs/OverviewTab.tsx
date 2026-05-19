@@ -3,29 +3,45 @@ import { Icon } from "../Icon";
 import { SampleMap } from "../SampleMap";
 import { SamplePointDrawer } from "../SamplePointDrawer";
 import type { SamplePoint } from "../../data/project";
+import { useToast } from "../Toast";
+import { useDemoState } from "../../hooks/useDemoState";
 
 export const OverviewTab = () => {
   const [selected, setSelected] = useState<SamplePoint | null>(null);
+  const { setTab } = useDemoState();
+  const { demo, toast } = useToast();
   const totalMeasurements = 564;
   const breakdown = { ok: 387, km: 142, mkm: 31, fa: 4 };
 
   return (
     <div className="grid grid-cols-3 gap-6">
-      <KpiCard label="Provpunkter" value="47" sub="varav 18 visualiserade" />
+      <KpiCard
+        label="Provpunkter"
+        value="47"
+        sub="varav 18 visualiserade"
+        onClick={() => setTab("samples")}
+      />
       <KpiCard
         label="Mätvärden över MKM"
         value="35"
         sub="5.5% av totalt 564"
         warn
+        onClick={() =>
+          toast("Filtrerar provpunkter över MKM", {
+            detail: "Hoppar till Provpunkter-fliken",
+            kind: "info",
+          })
+        }
       />
       <KpiCard
         label="Identifierade hotspots"
         value="3"
         sub="B04 · B09 · B13"
         warn
+        onClick={() => setTab("samples")}
       />
 
-      <div className="col-span-2 hairline rounded-md bg-paper overflow-hidden">
+      <div className="col-span-2 hairline rounded bg-paper overflow-hidden">
         <div className="flex items-center justify-between px-5 py-3 border-b border-line-soft">
           <div>
             <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted">
@@ -45,9 +61,9 @@ export const OverviewTab = () => {
         <SampleMap selectedId={selected?.id} onSelect={setSelected} />
       </div>
 
-      <div className="hairline rounded-md bg-paper">
-        <div className="px-5 py-3 border-b border-line-soft flex items-center gap-2">
-          <Icon name="sparkle" size={13} className="text-purple-brand" />
+      <div className="hairline rounded bg-paper">
+        <div className="px-4 py-2.5 border-b border-line-soft flex items-center gap-2">
+          <Icon name="cpu" size={12} className="text-gold" />
           <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted">
             AI-tolkning
           </div>
@@ -77,7 +93,7 @@ export const OverviewTab = () => {
         </div>
       </div>
 
-      <div className="col-span-2 hairline rounded-md bg-paper">
+      <div className="col-span-2 hairline rounded bg-paper">
         <div className="px-5 py-3 border-b border-line-soft">
           <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted">
             Fördelning
@@ -117,43 +133,49 @@ export const OverviewTab = () => {
         </div>
       </div>
 
-      <div className="hairline rounded-md bg-paper">
+      <div className="hairline rounded bg-paper">
         <div className="px-5 py-3 border-b border-line-soft">
           <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted">
             Källspårning
           </div>
           <div className="text-[13px] font-medium">Datakällor & versioner</div>
         </div>
-        <div className="p-5 space-y-2.5 text-[11.5px]">
+        <div className="p-5 space-y-1 text-[11.5px]">
           <SourceRow
             icon="file"
             label="Eurofins EUSE-2026-009834"
             sub="ack.nr 1125 · 2026-04-30"
+            onClick={() => demo("Öppna labbrapport")}
           />
           <SourceRow
             icon="map"
             label="SGU jordartskartan 1:25 000"
             sub="version 2026-02-14"
+            onClick={() => demo("Öppna SGU jordartskartan")}
           />
           <SourceRow
             icon="map"
             label="SGU berggrundskartan 1:50 000"
             sub="version 2025-11-08"
+            onClick={() => demo("Öppna SGU berggrundskartan")}
           />
           <SourceRow
             icon="archive"
             label="EBH-stödet · Norrbotten"
             sub="hämtad 2026-05-19"
+            onClick={() => demo("Öppna EBH-stödet")}
           />
           <SourceRow
             icon="scale"
             label="NV 2009:1867 riktvärden"
             sub="senaste revision 2016-09-30"
+            onClick={() => demo("Öppna NV-riktvärden")}
           />
           <SourceRow
             icon="database"
             label="Geosyntec interna PM"
             sub="12 referenser · pgvector"
+            onClick={() => demo("Visa RAG-träffar")}
           />
         </div>
       </div>
@@ -168,25 +190,30 @@ const KpiCard = ({
   value,
   sub,
   warn,
+  onClick,
 }: {
   label: string;
   value: string;
   sub: string;
   warn?: boolean;
+  onClick?: () => void;
 }) => (
-  <div className="hairline rounded-md bg-paper px-5 py-5">
-    <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mb-2">
+  <button
+    onClick={onClick}
+    className="hairline rounded bg-paper px-4 py-3.5 text-left hover:bg-cream transition-colors"
+  >
+    <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mb-1.5">
       {label}
     </div>
     <div
-      className={`font-display text-[44px] leading-none font-medium ${
+      className={`text-[28px] font-semibold leading-none tracking-tight ${
         warn ? "text-rust" : "text-ink"
       }`}
     >
       {value}
     </div>
-    <div className="text-[11.5px] text-ink-muted mt-2">{sub}</div>
-  </div>
+    <div className="text-[11px] text-ink-muted mt-1.5">{sub}</div>
+  </button>
 );
 
 const LegendDot = ({ color, label }: { color: string; label: string }) => (
@@ -240,7 +267,9 @@ const DistributionItem = ({
         {label}
       </span>
     </div>
-    <div className="font-display text-[26px] leading-none">{value}</div>
+    <div className="text-[20px] font-semibold leading-none tracking-tight">
+      {value}
+    </div>
     <div className="text-[10.5px] text-ink-muted mt-1 font-mono">
       {((value / total) * 100).toFixed(1)}%
     </div>
@@ -251,12 +280,17 @@ const SourceRow = ({
   icon,
   label,
   sub,
+  onClick,
 }: {
   icon: "file" | "map" | "archive" | "scale" | "database";
   label: string;
   sub: string;
+  onClick?: () => void;
 }) => (
-  <div className="flex items-start gap-2.5">
+  <button
+    onClick={onClick}
+    className="w-full flex items-start gap-2.5 text-left -mx-1.5 px-1.5 py-1 rounded hover:bg-cream-2 transition-colors"
+  >
     <div className="w-6 h-6 rounded bg-cream-2 flex items-center justify-center text-ink-muted flex-shrink-0 mt-0.5">
       <Icon name={icon} size={11} />
     </div>
@@ -264,5 +298,5 @@ const SourceRow = ({
       <div className="text-[12px] text-ink truncate">{label}</div>
       <div className="text-[10.5px] text-ink-muted font-mono">{sub}</div>
     </div>
-  </div>
+  </button>
 );

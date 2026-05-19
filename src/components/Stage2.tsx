@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AGENTS } from "../data/agents";
 import type { Agent } from "../data/agents";
 import { Icon } from "./Icon";
+import { useToast } from "./Toast";
 
 type Props = {
   onAgentsComplete: () => void;
@@ -66,11 +67,11 @@ export const Stage2 = ({ onAgentsComplete, onProceed, speed, setSpeed }: Props) 
         <div className="mb-7">
           <div className="flex items-baseline justify-between mb-2">
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mb-1.5">
+              <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mb-1">
                 Steg 02 · Orkestrering
               </div>
-              <h1 className="font-display text-[36px] leading-none font-medium">
-                Agenter arbetar parallellt
+              <h1 className="font-display text-[22px] leading-tight font-semibold tracking-tight">
+                Analys pågår
               </h1>
             </div>
             <div className="flex items-start gap-5">
@@ -81,12 +82,12 @@ export const Stage2 = ({ onAgentsComplete, onProceed, speed, setSpeed }: Props) 
                 disabled={allDone}
               />
               <div className="text-right">
-                <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mb-1">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mb-0.5">
                   Förfluten tid
                 </div>
-                <div className="font-mono text-[22px] tabular-nums">
+                <div className="font-mono text-[18px] tabular-nums font-medium">
                   {(elapsed / 1000).toFixed(1)}
-                  <span className="text-ink-muted text-[14px]">s</span>
+                  <span className="text-ink-muted text-[12px]">s</span>
                 </div>
               </div>
             </div>
@@ -132,10 +133,10 @@ export const Stage2 = ({ onAgentsComplete, onProceed, speed, setSpeed }: Props) 
           {allDone && (
             <button
               onClick={onProceed}
-              className="btn-primary px-6 py-3 rounded text-[13px] font-medium flex items-center gap-2 fade-up"
+              className="btn-accent px-5 py-2 rounded text-[12.5px] font-medium flex items-center gap-1.5 fade-up"
             >
               Granska rapport
-              <Icon name="chevronRight" size={14} strokeWidth={2} />
+              <Icon name="chevronRight" size={13} strokeWidth={2} />
             </button>
           )}
         </div>
@@ -192,6 +193,7 @@ const AgentCard = ({
   elapsed: number;
   index: number;
 }) => {
+  const { toast } = useToast();
   const localElapsed = elapsed - agent.delay;
   const progress = Math.max(0, Math.min(100, (localElapsed / agent.duration) * 100));
   const status: "waiting" | "running" | "done" =
@@ -220,15 +222,23 @@ const AgentCard = ({
 
   return (
     <div
-      className={`hairline rounded-md bg-paper overflow-hidden transition-opacity ${
+      className={`hairline rounded bg-paper overflow-hidden transition-opacity ${
         status === "waiting" ? "opacity-55" : ""
       }`}
     >
-      <div className="grid grid-cols-[1fr_320px]">
-        <div className="p-5 border-r border-line-soft">
-          <div className="flex items-start gap-3 mb-3">
+      <div className="grid grid-cols-[1fr_300px]">
+        <div className="p-4 border-r border-line-soft">
+          <button
+            onClick={() =>
+              toast(agent.name, {
+                detail: `${agent.purpose} · ${agent.tech}`,
+                kind: "info",
+              })
+            }
+            className="w-full text-left flex items-start gap-2.5 mb-2.5 -m-1 p-1 rounded hover:bg-cream-2 transition-colors"
+          >
             <div
-              className={`w-9 h-9 rounded flex items-center justify-center ${
+              className={`w-8 h-8 rounded flex items-center justify-center ${
                 status === "running"
                   ? "bg-ink text-paper"
                   : status === "done"
@@ -236,7 +246,7 @@ const AgentCard = ({
                     : "bg-cream-2 text-ink-muted"
               }`}
             >
-              <Icon name={agent.icon as never} size={16} />
+              <Icon name={agent.icon as never} size={14} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-0.5">
@@ -260,7 +270,7 @@ const AgentCard = ({
                   : `${Math.min(localElapsed, agent.duration).toFixed(0)} ms`}
               </div>
             </div>
-          </div>
+          </button>
 
           <div className="flex items-center gap-1.5 mb-3">
             <Icon name="cpu" size={11} className="text-ink-muted" />
@@ -278,7 +288,7 @@ const AgentCard = ({
 
           <div
             ref={logContainerRef}
-            className="bg-ink rounded p-3 h-[180px] overflow-y-auto log-scroll"
+            className="bg-ink rounded p-3 h-[160px] overflow-y-auto log-scroll"
           >
             {visibleLogs.map((log, i) => (
               <div
@@ -307,21 +317,30 @@ const AgentCard = ({
           </div>
         </div>
 
-        <div className="p-5 bg-cream-2/40">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mb-3">
+        <div className="p-4 bg-cream/60">
+          <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted mb-2.5">
             Utdata
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5">
             {agent.outputs.map((o, i) => (
-              <div
+              <button
                 key={i}
-                className={`transition-opacity ${status === "waiting" ? "opacity-30" : ""}`}
+                onClick={() =>
+                  toast(`${o.label}: ${o.value}`, {
+                    detail: `Beräknat av ${agent.name}`,
+                    kind: "info",
+                  })
+                }
+                disabled={status === "waiting"}
+                className={`text-left -m-1 p-1 rounded hover:bg-paper transition-colors ${
+                  status === "waiting" ? "opacity-30 cursor-not-allowed" : ""
+                }`}
               >
                 <div className="font-mono text-[9.5px] uppercase tracking-wider text-ink-muted mb-0.5">
                   {o.label}
                 </div>
                 <div
-                  className={`font-display text-[24px] leading-none ${
+                  className={`text-[18px] font-semibold leading-tight tracking-tight ${
                     status === "done"
                       ? "text-ink"
                       : status === "running"
@@ -331,17 +350,17 @@ const AgentCard = ({
                 >
                   {status === "waiting" ? "—" : o.value}
                 </div>
-              </div>
+              </button>
             ))}
           </div>
 
           {status === "done" && (
-            <div className="fade-up mt-4 pt-3 border-t border-line-soft">
+            <div className="fade-up mt-3 pt-2.5 border-t border-line-soft">
               <div className="flex items-center justify-between text-[11px]">
                 <span className="font-mono text-ink-muted uppercase tracking-wider text-[9.5px]">
                   Konfidens
                 </span>
-                <span className="font-mono text-green-brand">
+                <span className="font-mono text-green-brand font-medium">
                   0.{91 + index}
                   {4 + index}
                 </span>

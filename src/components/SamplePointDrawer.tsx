@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Icon } from "./Icon";
+import { useToast } from "./Toast";
 import {
   classColors,
   classifyValue,
@@ -15,6 +16,7 @@ type Props = {
 };
 
 export const SamplePointDrawer = ({ point, onClose }: Props) => {
+  const { demo } = useToast();
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -38,7 +40,7 @@ export const SamplePointDrawer = ({ point, onClose }: Props) => {
               Provpunkt
             </div>
             <div className="flex items-baseline gap-3">
-              <h2 className="font-display text-[32px] leading-none font-medium">
+              <h2 className="text-[24px] font-semibold leading-none tracking-tight">
                 {point.id}
               </h2>
               <span
@@ -143,11 +145,17 @@ export const SamplePointDrawer = ({ point, onClose }: Props) => {
         </div>
 
         <div className="border-t border-line-soft px-6 py-4 flex items-center gap-2">
-          <button className="btn-ghost hairline-soft flex-1 py-2 rounded text-[12px] flex items-center justify-center gap-2">
-            <Icon name="sparkle" size={12} className="text-purple-brand" />
-            Analysera trend
+          <button
+            onClick={() => demo(`Trendanalys · ${point.id}`)}
+            className="btn-ghost hairline-soft flex-1 py-2 rounded text-[12px] flex items-center justify-center gap-2"
+          >
+            <Icon name="chart" size={12} className="text-gold" />
+            Trendanalys
           </button>
-          <button className="btn-primary flex-1 py-2 rounded text-[12px] flex items-center justify-center gap-2">
+          <button
+            onClick={() => demo(`Öppna ${point.id} i kartvy`)}
+            className="btn-accent flex-1 py-2 rounded text-[12px] flex items-center justify-center gap-2"
+          >
             <Icon name="external" size={12} strokeWidth={2} />
             Öppna i karta
           </button>

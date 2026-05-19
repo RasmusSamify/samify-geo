@@ -3,24 +3,36 @@
 @tailwind utilities;
 
 :root {
-  --cream: #f5f1e8;
-  --cream-2: #ebe5d4;
-  --paper: #fcfaf3;
-  --ink: #1a1814;
-  --ink-soft: #3d3935;
-  --ink-muted: #7a736a;
-  --gold: #b8945f;
-  --gold-deep: #8b6f3f;
-  --purple: #6b5b95;
-  --green: #2d5f3f;
-  --amber: #b8845f;
-  --rust: #8b3a3a;
-  --line: #d8d2c4;
-  --line-soft: #e5dfcf;
+  --bg: #ffffff;
+  --bg-soft: #f8fafc;
+  --bg-elev: #f1f5f9;
+  --surface: #ffffff;
+  --text: #0f172a;
+  --text-soft: #334155;
+  --text-muted: #64748b;
+  --text-faint: #94a3b8;
+
+  --accent: #047857;
+  --accent-soft: #ecfdf5;
+  --accent-hover: #065f46;
+
+  --samify-purple: #6b5b95;
+
+  --ok: #15803d;
+  --ok-bg: rgba(21, 128, 61, 0.08);
+  --warn: #b45309;
+  --warn-bg: rgba(180, 83, 9, 0.08);
+  --danger: #b91c1c;
+  --danger-bg: rgba(185, 28, 28, 0.08);
+
+  --border: #e2e8f0;
+  --border-soft: #f1f5f9;
+  --border-strong: #cbd5e1;
 }
 
 * {
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 html,
@@ -31,97 +43,97 @@ body,
 }
 
 body {
-  font-family: "IBM Plex Sans", sans-serif;
-  background: var(--cream);
-  color: var(--ink);
+  font-family:
+    "Montserrat",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-feature-settings:
+    "cv02", "cv03", "cv04", "cv11";
+  background: var(--bg);
+  color: var(--text);
 }
 
+/* Aliases retained so component class names keep working */
 .font-display {
-  font-family: "Fraunces", serif;
-  font-variation-settings: "opsz" 144;
-  letter-spacing: -0.01em;
+  font-family: "Montserrat", sans-serif;
+  letter-spacing: -0.018em;
+  font-weight: 600;
 }
 .font-display-soft {
-  font-family: "Fraunces", serif;
-  font-variation-settings: "opsz" 24;
+  font-family: "Montserrat", sans-serif;
+  letter-spacing: -0.005em;
+  font-weight: 400;
 }
 
 .bg-cream {
-  background: var(--cream);
+  background: var(--bg-soft);
 }
 .bg-cream-2 {
-  background: var(--cream-2);
+  background: var(--bg-elev);
 }
 .bg-paper {
-  background: var(--paper);
+  background: var(--surface);
 }
 .bg-ink {
-  background: var(--ink);
+  background: var(--text);
 }
 .bg-ink-soft {
-  background: var(--ink-soft);
+  background: var(--text-soft);
 }
 .text-ink {
-  color: var(--ink);
+  color: var(--text);
 }
 .text-ink-soft {
-  color: var(--ink-soft);
+  color: var(--text-soft);
 }
 .text-ink-muted {
-  color: var(--ink-muted);
+  color: var(--text-muted);
 }
 .text-gold {
-  color: var(--gold);
+  color: var(--accent);
 }
 .text-gold-deep {
-  color: var(--gold-deep);
+  color: var(--accent-hover);
 }
 .text-purple-brand {
-  color: var(--purple);
+  color: var(--accent);
 }
 .text-green-brand {
-  color: var(--green);
+  color: var(--ok);
 }
 .text-amber-brand {
-  color: var(--amber);
+  color: var(--warn);
 }
 .text-rust {
-  color: var(--rust);
+  color: var(--danger);
 }
 .bg-gold {
-  background: var(--gold);
+  background: var(--accent);
 }
 .bg-purple-brand {
-  background: var(--purple);
+  background: var(--accent);
 }
 .bg-green-brand {
-  background: var(--green);
+  background: var(--ok);
 }
 .bg-amber-brand {
-  background: var(--amber);
+  background: var(--warn);
 }
 .bg-rust {
-  background: var(--rust);
+  background: var(--danger);
 }
 .border-line {
-  border-color: var(--line);
+  border-color: var(--border);
 }
 .border-line-soft {
-  border-color: var(--line-soft);
+  border-color: var(--border-soft);
 }
 
+/* No more grain texture — it's part of the AI-craft aesthetic */
 .grain {
   position: relative;
-}
-.grain::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' /><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  pointer-events: none;
-  opacity: 0.6;
-  mix-blend-mode: multiply;
-  z-index: 1;
 }
 
 @keyframes pulse-soft {
@@ -156,7 +168,7 @@ body {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(184, 148, 95, 0.25),
+    rgba(4, 120, 87, 0.18),
     transparent
   );
   animation: shimmer 2s infinite;
@@ -165,7 +177,7 @@ body {
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
@@ -173,21 +185,7 @@ body {
   }
 }
 .fade-up {
-  animation: fadeUp 0.4s ease-out both;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-.slide-in {
-  animation: slideIn 0.25s ease-out both;
+  animation: fadeUp 0.28s ease-out both;
 }
 
 @keyframes blink {
@@ -206,36 +204,40 @@ body {
   background: transparent;
 }
 .log-scroll::-webkit-scrollbar-thumb {
-  background: rgba(216, 210, 196, 0.4);
+  background: rgba(148, 163, 184, 0.4);
   border-radius: 3px;
 }
 
 .leaflet-container {
-  background: var(--cream-2);
-  font-family: "IBM Plex Sans", sans-serif;
+  background: var(--bg-soft);
+  font-family: "Montserrat", sans-serif;
 }
 
 .pp-marker {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "JetBrains Mono", monospace;
+  font-family:
+    "IBM Plex Mono", "JetBrains Mono", monospace;
   font-size: 9px;
   font-weight: 600;
   color: white;
   border-radius: 50%;
   border: 2px solid white;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-  width: 24px;
-  height: 24px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.25);
+  width: 22px;
+  height: 22px;
   cursor: pointer;
-  transition: transform 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 .pp-marker:hover {
-  transform: scale(1.15);
+  transform: scale(1.12);
+  box-shadow: 0 4px 8px rgba(15, 23, 42, 0.3);
 }
 .pp-marker.selected {
-  outline: 2px solid var(--ink);
+  outline: 2px solid var(--text);
   outline-offset: 2px;
 }
 
@@ -244,11 +246,14 @@ body {
   opacity: 0.5;
 }
 
+/* Removed inset shadow hairlines; use plain borders for a cleaner look */
 .hairline {
-  box-shadow: inset 0 0 0 1px var(--line);
+  border: 1px solid var(--border);
+  box-shadow: none;
 }
 .hairline-soft {
-  box-shadow: inset 0 0 0 1px var(--line-soft);
+  border: 1px solid var(--border-soft);
+  box-shadow: none;
 }
 
 .diag-stripe {
@@ -256,48 +261,63 @@ body {
     45deg,
     transparent,
     transparent 4px,
-    rgba(184, 148, 95, 0.15) 4px,
-    rgba(184, 148, 95, 0.15) 8px
+    rgba(180, 83, 9, 0.12) 4px,
+    rgba(180, 83, 9, 0.12) 8px
   );
 }
 
 .btn-primary {
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--text);
+  color: white;
+  font-weight: 500;
   transition:
-    background 0.15s ease,
+    background 0.12s ease,
     transform 0.05s ease;
 }
 .btn-primary:hover {
-  background: var(--ink-soft);
+  background: #1e293b;
 }
 .btn-primary:active {
   transform: translateY(0.5px);
 }
 
+.btn-accent {
+  background: var(--accent);
+  color: white;
+  font-weight: 500;
+  transition:
+    background 0.12s ease,
+    transform 0.05s ease;
+}
+.btn-accent:hover {
+  background: var(--accent-hover);
+}
+
 .btn-ghost {
   background: transparent;
-  color: var(--ink);
-  transition: background 0.15s ease;
+  color: var(--text);
+  transition: background 0.12s ease;
 }
 .btn-ghost:hover {
-  background: var(--cream-2);
+  background: var(--bg-elev);
 }
 
 .step-circle {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
+  font-family:
+    "IBM Plex Mono", "JetBrains Mono", monospace;
+  font-size: 10.5px;
   font-weight: 500;
 }
 
 .log-line {
-  font-family: "JetBrains Mono", monospace;
+  font-family:
+    "IBM Plex Mono", "JetBrains Mono", monospace;
   font-size: 11.5px;
   line-height: 1.55;
   letter-spacing: -0.01em;
@@ -308,49 +328,50 @@ table.data-table {
   width: 100%;
 }
 table.data-table th {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 10px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 10.5px;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--ink-muted);
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
   text-align: left;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--line);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-soft);
 }
 table.data-table td {
-  padding: 11px 12px;
-  border-bottom: 1px solid var(--line-soft);
-  font-size: 13px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 12.5px;
 }
 table.data-table tr:hover td {
-  background: rgba(216, 210, 196, 0.2);
+  background: var(--bg-soft);
 }
 table.data-table tr:last-child td {
   border-bottom: none;
 }
 table.data-table tr.selected td {
-  background: rgba(107, 91, 149, 0.08);
+  background: var(--accent-soft);
 }
 
 .main-scroll::-webkit-scrollbar {
   width: 10px;
 }
 .main-scroll::-webkit-scrollbar-track {
-  background: var(--cream);
+  background: var(--bg);
 }
 .main-scroll::-webkit-scrollbar-thumb {
-  background: var(--line);
+  background: var(--border-strong);
   border-radius: 5px;
 }
 
-/* Drawer for sample point detail */
+/* Drawer */
 .drawer-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(26, 24, 20, 0.35);
+  background: rgba(15, 23, 42, 0.4);
   z-index: 999;
-  animation: fadeOverlay 0.2s ease-out both;
+  animation: fadeOverlay 0.18s ease-out both;
 }
 @keyframes fadeOverlay {
   from {
@@ -367,12 +388,13 @@ table.data-table tr.selected td {
   bottom: 0;
   width: 440px;
   max-width: 90vw;
-  background: var(--paper);
+  background: var(--surface);
+  border-left: 1px solid var(--border);
   z-index: 1000;
-  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.18);
+  box-shadow: -8px 0 24px rgba(15, 23, 42, 0.08);
   display: flex;
   flex-direction: column;
-  animation: slideInDrawer 0.25s ease-out both;
+  animation: slideInDrawer 0.22s ease-out both;
 }
 @keyframes slideInDrawer {
   from {
@@ -381,4 +403,11 @@ table.data-table tr.selected td {
   to {
     transform: translateX(0);
   }
+}
+
+/* Mono utility (keep monospaced for IDs/data) */
+.font-mono {
+  font-family:
+    "IBM Plex Mono", "JetBrains Mono", monospace;
+  font-feature-settings: "tnum";
 }

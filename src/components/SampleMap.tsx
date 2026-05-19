@@ -47,11 +47,11 @@ export const SampleMap = ({ selectedId, onSelect, height = 440 }: Props) => {
       const marker = L.marker([pt.lat, pt.lng], { icon }).addTo(map);
       marker.bindTooltip(
         `
-        <div style="font-family: 'IBM Plex Sans'; font-size: 12px;">
-          <div style="font-family: 'JetBrains Mono'; font-size: 10px; color: #7A736A; text-transform: uppercase; letter-spacing: 0.06em;">Provpunkt</div>
+        <div style="font-family: 'Montserrat'; font-size: 12px;">
+          <div style="font-family: 'IBM Plex Mono'; font-size: 10px; color: #64748B; text-transform: uppercase; letter-spacing: 0.06em;">Provpunkt</div>
           <div style="font-weight: 600; margin-bottom: 4px;">${pt.id}</div>
-          <div style="font-size: 11px; color: #3D3935;">Djup ${pt.depth} m · ${classColors[worst].label}</div>
-          <div style="font-size: 10px; color: #7A736A; margin-top: 4px;">Klicka för detaljer</div>
+          <div style="font-size: 11px; color: #334155;">Djup ${pt.depth} m · ${classColors[worst].label}</div>
+          <div style="font-size: 10px; color: #64748B; margin-top: 4px;">Klicka för detaljer</div>
         </div>
       `,
       );

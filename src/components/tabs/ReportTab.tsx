@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Icon } from "../Icon";
 import { PM_SECTIONS } from "../../data/pmSections";
+import { useToast } from "../Toast";
 
 export const ReportTab = () => {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const totalWords = PM_SECTIONS.reduce((a, s) => a + s.words, 0);
   const section = PM_SECTIONS[selectedIdx];
+  const { demo } = useToast();
 
   return (
     <div className="grid grid-cols-[280px_1fr] gap-6">
@@ -31,29 +33,35 @@ export const ReportTab = () => {
       </div>
 
       <div className="hairline rounded-md bg-paper">
-        <div className="px-8 py-5 border-b border-line-soft flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-line-soft flex items-center justify-between">
           <div>
             <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted">
               Sektion {section.n} av {PM_SECTIONS.length}
             </div>
-            <div className="font-display text-[24px] leading-none mt-1.5">
+            <div className="text-[18px] font-semibold leading-tight tracking-tight mt-1">
               {section.name}
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button className="btn-ghost hairline-soft px-3 py-1.5 rounded text-[11.5px] flex items-center gap-1.5">
-              <Icon name="sparkle" size={11} className="text-purple-brand" />
-              Skriv om
+            <button
+              onClick={() => demo(`Generera om sektion · ${section.name}`)}
+              className="btn-ghost hairline-soft px-2.5 py-1.5 rounded text-[11.5px] flex items-center gap-1.5"
+            >
+              <Icon name="cpu" size={11} className="text-gold" />
+              Generera om
             </button>
-            <button className="btn-ghost hairline-soft px-3 py-1.5 rounded text-[11.5px] flex items-center gap-1.5">
+            <button
+              onClick={() => demo(`Redigera sektion · ${section.name}`)}
+              className="btn-ghost hairline-soft px-2.5 py-1.5 rounded text-[11.5px] flex items-center gap-1.5"
+            >
               <Icon name="edit" size={11} />
               Redigera
             </button>
           </div>
         </div>
 
-        <div className="px-8 py-7">
-          <div className="font-display-soft text-[15.5px] leading-[1.75] text-ink-soft space-y-4 max-w-[680px]">
+        <div className="px-6 py-6">
+          <div className="text-[13.5px] leading-[1.7] text-ink-soft space-y-3.5 max-w-[720px]">
             {section.content}
           </div>
 
